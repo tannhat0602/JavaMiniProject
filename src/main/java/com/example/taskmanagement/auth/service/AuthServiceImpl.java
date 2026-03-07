@@ -7,6 +7,8 @@ import com.example.taskmanagement.exception.DuplicateResourceException;
 import com.example.taskmanagement.security.jwt.JwtUtil;
 import com.example.taskmanagement.user.entity.User;
 import com.example.taskmanagement.user.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +16,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class AuthServiceImpl implements AuthService {
+
+    private static final Logger log = LoggerFactory.getLogger(AuthServiceImpl.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -46,6 +50,7 @@ public class AuthServiceImpl implements AuthService {
         user.setRole("ROLE_USER");
 
         userRepository.save(user);
+        log.info("Registered new user: {}", user.getUsername());
 
         String token = jwtUtil.generateToken(user.getUsername());
         return new AuthResponse(token, user.getUsername(), user.getRole());
@@ -60,6 +65,7 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
+        log.info("User logged in: {}", user.getUsername());
         String token = jwtUtil.generateToken(user.getUsername());
         return new AuthResponse(token, user.getUsername(), user.getRole());
     }
