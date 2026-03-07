@@ -42,28 +42,22 @@ public class TaskServiceImpl implements TaskService {
     @Override
     public Page<TaskResponse> getAllTasks(String username, String status, String priority, Pageable pageable) {
         User user = findUserByUsername(username);
-        Long userId = user.getId();
 
-        Page<Task> tasks;
-
-        if (status != null && priority != null) {
-            tasks = taskRepository.findByUserIdAndStatusAndPriority(userId, status, priority, pageable);
-        } else if (status != null) {
-            tasks = taskRepository.findByUserIdAndStatus(userId, status, pageable);
-        } else if (priority != null) {
-            tasks = taskRepository.findByUserIdAndPriority(userId, priority, pageable);
-        } else {
-            tasks = taskRepository.findByUserId(userId, pageable);
+        // ADMIN thấy tất cả tasks, USER chỉ thấy tasks của mình
+        if (isAdmin(user)) {
+            return getAllTasksForAdmin(status, priority, pageable);
         }
 
-        return tasks.map(this::toResponse);
+        return getAllTasksForUser(user.getId(), status, priority, pageable);
     }
 
     @Override
     public TaskResponse getTaskById(Long taskId, String username) {
         User user = findUserByUsername(username);
         Task task = findTaskById(taskId);
-        checkOwnership(task, user);
+        if (!isAdmin(user)) {
+            checkOwnership(task, user);
+        }
         return toResponse(task);
     }
 
@@ -71,7 +65,9 @@ public class TaskServiceImpl implements TaskService {
     public TaskResponse updateTask(Long taskId, UpdateTaskRequest request, String username) {
         User user = findUserByUsername(username);
         Task task = findTaskById(taskId);
-        checkOwnership(task, user);
+        if (!isAdmin(user)) {
+            checkOwnership(task, user);
+        }
 
         task.setTitle(request.getTitle());
         task.setDescription(request.getDescription());
@@ -85,11 +81,45 @@ public class TaskServiceImpl implements TaskService {
     public void deleteTask(Long taskId, String username) {
         User user = findUserByUsername(username);
         Task task = findTaskById(taskId);
-        checkOwnership(task, user);
+        if (!isAdmin(user)) {
+            checkOwnership(task, user);
+        }
         taskRepository.delete(task);
     }
 
     // ===== Private helpers =====
+
+    private boolean isAdmin(User user) {
+        return "ROLE_ADMIN".equals(user.getRole());
+    }
+
+    private Page<TaskResponse> getAllTasksForAdmin(String status, String priority, Pageable pageable) {
+        Page<Task> tasks;
+        if (status != null && priority != null) {
+            tasks = taskRepository.findByStatusAndPriority(status, priority, pageable);
+        } else if (status != null) {
+            tasks = taskRepository.findByStatus(status, pageable);
+        } else if (priority != null) {
+            tasks = taskRepository.findByPriority(priority, pageable);
+        } else {
+            tasks = taskRepository.findAll(pageable);
+        }
+        return tasks.map(this::toResponse);
+    }
+
+    private Page<TaskResponse> getAllTasksForUser(Long userId, String status, String priority, Pageable pageable) {
+        Page<Task> tasks;
+        if (status != null && priority != null) {
+            tasks = taskRepository.findByUserIdAndStatusAndPriority(userId, status, priority, pageable);
+        } else if (status != null) {
+            tasks = taskRepository.findByUserIdAndStatus(userId, status, pageable);
+        } else if (priority != null) {
+            tasks = taskRepository.findByUserIdAndPriority(userId, priority, pageable);
+        } else {
+            tasks = taskRepository.findByUserId(userId, pageable);
+        }
+        return tasks.map(this::toResponse);
+    }
 
     private User findUserByUsername(String username) {
         return userRepository.findByUsername(username)
