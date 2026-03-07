@@ -1,5 +1,6 @@
 package com.example.taskmanagement.user.entity;
 
+import com.example.taskmanagement.task.entity.Task;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,6 +23,12 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks = new ArrayList<>();
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String role;
 
     // ===== Constructor =====
 
@@ -63,6 +70,21 @@ public class User {
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
     }
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
 
     // ===== Helper method để quản lý quan hệ 2 chiều =====
 

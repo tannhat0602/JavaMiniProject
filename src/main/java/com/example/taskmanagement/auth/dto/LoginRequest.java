@@ -1,20 +1,16 @@
-package com.example.taskmanagement.user.dto;
-import jakarta.validation.constraints.Email;
+package com.example.taskmanagement.auth.dto;
+
 import jakarta.validation.constraints.NotBlank;
 
-public class CreateUserRequest {
+public class LoginRequest {
 
     @NotBlank(message = "Username is required")
     private String username;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Email should be valid")
-    private String email;
-
     @NotBlank(message = "Password is required")
     private String password;
 
-    public CreateUserRequest() {
+    public LoginRequest() {
     }
 
     public String getUsername() {
@@ -23,14 +19,6 @@ public class CreateUserRequest {
 
     public void setUsername(String username) {
         this.username = username;
-    }
-
-    public String getEmail() {
-        return email;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public String getPassword() {
