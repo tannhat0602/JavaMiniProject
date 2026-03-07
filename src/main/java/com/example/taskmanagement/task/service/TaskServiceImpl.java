@@ -9,12 +9,16 @@ import com.example.taskmanagement.task.entity.Task;
 import com.example.taskmanagement.task.repository.TaskRepository;
 import com.example.taskmanagement.user.entity.User;
 import com.example.taskmanagement.user.repository.UserRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
 public class TaskServiceImpl implements TaskService {
+
+    private static final Logger log = LoggerFactory.getLogger(TaskServiceImpl.class);
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
@@ -36,7 +40,9 @@ public class TaskServiceImpl implements TaskService {
                 user
         );
 
-        return toResponse(taskRepository.save(task));
+        TaskResponse response = toResponse(taskRepository.save(task));
+        log.info("Task created: id={} by user={}", response.getId(), username);
+        return response;
     }
 
     @Override
@@ -74,7 +80,9 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(request.getStatus());
         task.setPriority(request.getPriority());
 
-        return toResponse(taskRepository.save(task));
+        TaskResponse response = toResponse(taskRepository.save(task));
+        log.info("Task updated: id={} by user={}", taskId, username);
+        return response;
     }
 
     @Override
@@ -85,6 +93,7 @@ public class TaskServiceImpl implements TaskService {
             checkOwnership(task, user);
         }
         taskRepository.delete(task);
+        log.info("Task deleted: id={} by user={}", taskId, username);
     }
 
     // ===== Private helpers =====

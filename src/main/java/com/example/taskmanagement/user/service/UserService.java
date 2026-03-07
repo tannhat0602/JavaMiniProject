@@ -2,6 +2,8 @@ package com.example.taskmanagement.user.service;
 
 import java.util.List;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +17,9 @@ import com.example.taskmanagement.exception.DuplicateResourceException;
 
 @Service
 public class UserService {
+
+    private static final Logger log = LoggerFactory.getLogger(UserService.class);
+
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
@@ -49,7 +54,7 @@ public class UserService {
         user.setRole("ROLE_USER");
 
         User savedUser = userRepository.save(user);
-
+        log.info("User created by admin: {}", savedUser.getUsername());
         return toResponse(savedUser);
     }
 
@@ -67,6 +72,7 @@ public class UserService {
         User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + id));
         userRepository.delete(existingUser);
+        log.info("User deleted: id={}", id);
     }
 
     private UserResponse toResponse(User user) {
