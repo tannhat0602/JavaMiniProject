@@ -18,4 +18,11 @@ public interface TaskRepository extends JpaRepository<Task, Long> {
     Page<Task> findByUserIdAndStatusAndPriority(Long userId, String status, String priority, Pageable pageable);
 
     Optional<Task> findByIdAndUserId(Long id, Long userId);
+
+    // ADMIN queries — filter toàn bộ tasks không giới hạn userId
+    Page<Task> findByStatus(String status, Pageable pageable);
+
+    Page<Task> findByPriority(String priority, Pageable pageable);
+
+    Page<Task> findByStatusAndPriority(String status, String priority, Pageable pageable);
 }
