@@ -31,6 +31,8 @@ public class Task {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+    private LocalDateTime deadline;
+
     @CreationTimestamp
     @Column(updatable = false)
     private LocalDateTime createdAt;
@@ -95,6 +97,14 @@ public class Task {
 
     public void setUser(User user) {
         this.user = user;
+    }
+
+    public LocalDateTime getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDateTime deadline) {
+        this.deadline = deadline;
     }
 
     public LocalDateTime getCreatedAt() {

@@ -11,6 +11,7 @@ public class TaskResponse {
     private String priority;
     private Long userId;
     private String username;
+    private LocalDateTime deadline;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -19,7 +20,7 @@ public class TaskResponse {
 
     public TaskResponse(Long id, String title, String description, String status,
                         String priority, Long userId, String username,
-                        LocalDateTime createdAt, LocalDateTime updatedAt) {
+                        LocalDateTime deadline, LocalDateTime createdAt, LocalDateTime updatedAt) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -27,6 +28,7 @@ public class TaskResponse {
         this.priority = priority;
         this.userId = userId;
         this.username = username;
+        this.deadline = deadline;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
@@ -38,6 +40,7 @@ public class TaskResponse {
     public String getPriority() { return priority; }
     public Long getUserId() { return userId; }
     public String getUsername() { return username; }
+    public LocalDateTime getDeadline() { return deadline; }
     public LocalDateTime getCreatedAt() { return createdAt; }
     public LocalDateTime getUpdatedAt() { return updatedAt; }
 }

@@ -15,6 +15,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Service
 public class TaskServiceImpl implements TaskService {
 
@@ -39,6 +42,7 @@ public class TaskServiceImpl implements TaskService {
                 request.getPriority(),
                 user
         );
+        task.setDeadline(request.getDeadline());
 
         TaskResponse response = toResponse(taskRepository.save(task));
         log.info("Task created: id={} by user={}", response.getId(), username);
@@ -49,7 +53,6 @@ public class TaskServiceImpl implements TaskService {
     public Page<TaskResponse> getAllTasks(String username, String status, String priority, Pageable pageable) {
         User user = findUserByUsername(username);
 
-        // ADMIN thấy tất cả tasks, USER chỉ thấy tasks của mình
         if (isAdmin(user)) {
             return getAllTasksForAdmin(status, priority, pageable);
         }
@@ -79,6 +82,7 @@ public class TaskServiceImpl implements TaskService {
         task.setDescription(request.getDescription());
         task.setStatus(request.getStatus());
         task.setPriority(request.getPriority());
+        task.setDeadline(request.getDeadline());
 
         TaskResponse response = toResponse(taskRepository.save(task));
         log.info("Task updated: id={} by user={}", taskId, username);
@@ -94,6 +98,21 @@ public class TaskServiceImpl implements TaskService {
         }
         taskRepository.delete(task);
         log.info("Task deleted: id={} by user={}", taskId, username);
+    }
+
+    @Override
+    public List<TaskResponse> getUpcomingTasks(String username) {
+        User user = findUserByUsername(username);
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime in24h = now.plusHours(24);
+
+        List<Task> tasks;
+        if (isAdmin(user)) {
+            tasks = taskRepository.findTasksWithDeadlineBetween(now, in24h);
+        } else {
+            tasks = taskRepository.findTasksWithDeadlineBetweenForUser(user.getId(), now, in24h);
+        }
+        return tasks.stream().map(this::toResponse).toList();
     }
 
     // ===== Private helpers =====
@@ -155,6 +174,7 @@ public class TaskServiceImpl implements TaskService {
                 task.getPriority(),
                 task.getUser().getId(),
                 task.getUser().getUsername(),
+                task.getDeadline(),
                 task.getCreatedAt(),
                 task.getUpdatedAt()
         );

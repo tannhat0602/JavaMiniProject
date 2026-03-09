@@ -16,6 +16,8 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/tasks")
 @Tag(name = "Tasks", description = "Task management APIs — USER sees own tasks, ADMIN sees all")
@@ -43,6 +45,13 @@ public class TaskController {
             @PageableDefault(size = 10, sort = "createdAt") Pageable pageable,
             @AuthenticationPrincipal UserDetails userDetails) {
         return ResponseEntity.ok(taskService.getAllTasks(userDetails.getUsername(), status, priority, pageable));
+    }
+
+    @GetMapping("/upcoming")
+    @Operation(summary = "Get upcoming tasks", description = "Tasks with deadline within the next 24 hours that are not DONE")
+    public ResponseEntity<List<TaskResponse>> getUpcomingTasks(
+            @AuthenticationPrincipal UserDetails userDetails) {
+        return ResponseEntity.ok(taskService.getUpcomingTasks(userDetails.getUsername()));
     }
 
     @GetMapping("/{id}")
