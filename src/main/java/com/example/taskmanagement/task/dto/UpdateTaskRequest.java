@@ -3,6 +3,8 @@ package com.example.taskmanagement.task.dto;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 
+import java.time.LocalDateTime;
+
 public class UpdateTaskRequest {
 
     @NotBlank(message = "Title is required")
@@ -50,5 +52,15 @@ public class UpdateTaskRequest {
 
     public void setPriority(String priority) {
         this.priority = priority;
+    }
+
+    private LocalDateTime deadline;
+
+    public LocalDateTime getDeadline() {
+        return deadline;
+    }
+
+    public void setDeadline(LocalDateTime deadline) {
+        this.deadline = deadline;
     }
 }
